@@ -45,13 +45,14 @@ namespace Image_processing
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.моделированиеШумаToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.гауссовШумToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.сольПерецToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.uniformToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.удалениеШумаToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.фToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.метрикиСравненияToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pSNRToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sSIMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
-            this.фToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.медианныйToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -177,7 +178,7 @@ namespace Image_processing
             // 
             this.моделированиеШумаToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.гауссовШумToolStripMenuItem,
-            this.сольПерецToolStripMenuItem});
+            this.uniformToolStripMenuItem});
             this.моделированиеШумаToolStripMenuItem.Name = "моделированиеШумаToolStripMenuItem";
             this.моделированиеШумаToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
             this.моделированиеШумаToolStripMenuItem.Text = "Моделирование шума";
@@ -189,20 +190,28 @@ namespace Image_processing
             this.гауссовШумToolStripMenuItem.Text = "Гауссов шум";
             this.гауссовШумToolStripMenuItem.Click += new System.EventHandler(this.гауссовШумToolStripMenuItem_Click);
             // 
-            // сольПерецToolStripMenuItem
+            // uniformToolStripMenuItem
             // 
-            this.сольПерецToolStripMenuItem.Name = "сольПерецToolStripMenuItem";
-            this.сольПерецToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.сольПерецToolStripMenuItem.Text = "СольПерец";
-            this.сольПерецToolStripMenuItem.Click += new System.EventHandler(this.сольПерецToolStripMenuItem_Click);
+            this.uniformToolStripMenuItem.Name = "uniformToolStripMenuItem";
+            this.uniformToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.uniformToolStripMenuItem.Text = "uniform";
+            this.uniformToolStripMenuItem.Click += new System.EventHandler(this.uniformToolStripMenuItem_Click);
             // 
             // удалениеШумаToolStripMenuItem
             // 
             this.удалениеШумаToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.фToolStripMenuItem});
+            this.фToolStripMenuItem,
+            this.медианныйToolStripMenuItem});
             this.удалениеШумаToolStripMenuItem.Name = "удалениеШумаToolStripMenuItem";
             this.удалениеШумаToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
             this.удалениеШумаToolStripMenuItem.Text = "Удаление шума";
+            // 
+            // фToolStripMenuItem
+            // 
+            this.фToolStripMenuItem.Name = "фToolStripMenuItem";
+            this.фToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.фToolStripMenuItem.Text = "Фильтр Гаусса";
+            this.фToolStripMenuItem.Click += new System.EventHandler(this.фToolStripMenuItem_Click);
             // 
             // метрикиСравненияToolStripMenuItem
             // 
@@ -236,12 +245,12 @@ namespace Image_processing
             this.label1.TabIndex = 2;
             this.label1.Text = "Ожидание";
             // 
-            // фToolStripMenuItem
+            // медианныйToolStripMenuItem
             // 
-            this.фToolStripMenuItem.Name = "фToolStripMenuItem";
-            this.фToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.фToolStripMenuItem.Text = "Фильтр Гаусса";
-            this.фToolStripMenuItem.Click += new System.EventHandler(this.фToolStripMenuItem_Click);
+            this.медианныйToolStripMenuItem.Name = "медианныйToolStripMenuItem";
+            this.медианныйToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.медианныйToolStripMenuItem.Text = "Медианный";
+            this.медианныйToolStripMenuItem.Click += new System.EventHandler(this.медианныйToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -282,12 +291,13 @@ namespace Image_processing
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem2;
         private System.Windows.Forms.ToolStripMenuItem моделированиеШумаToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem гауссовШумToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem сольПерецToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem удалениеШумаToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem метрикиСравненияToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem pSNRToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem sSIMToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem фToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem uniformToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem медианныйToolStripMenuItem;
     }
 }
 

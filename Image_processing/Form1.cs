@@ -4,9 +4,11 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Image_processing
 {
@@ -442,18 +444,67 @@ namespace Image_processing
             label1.Text = "Обработка изображения...";
             Bitmap resultImage = new Bitmap(image.Width, image.Height);
 
-            float averageBrightness = calculateAverageBrightness(image);
+            //float averageBrightness = calculateAverageBrightness(image);
 
-            for (int i = 0; i < image.Width; i++)
+            //for (int i = 0; i < image.Width; i++)
+            //{
+            //    for (int j = 0; j < image.Height; j++)
+            //    {
+            //        float sigma = calculateSigma(i,j);
+            //        Color sourceColor = image.GetPixel(i, j);
+            //        float degree = (float)(-(Math.Pow(sourceColor.GetBrightness() - averageBrightness, 2)) / (2 * Math.Pow(sigma, 2)));
+            //        Color resColor = Color.FromArgb((int)(1 / (float)Math.Sqrt(2 * Math.PI * sigma) * (float) Math.Pow(Math.E, degree)));
+
+            //        resultImage.SetPixel(i, j, resColor);
+            //    }
+            //}
+            int size = image.Height * image.Width;
+            byte[] noise = new byte[size];
+            double[] gaussian = new double[256];
+            int sigma = 20;
+            int z = 0;
+            Random rnd = new Random();
+            double sum = 0;
+            for (int i = 0; i < 256; i++)
             {
-                for (int j = 0; j < image.Height; j++)
-                {
-                    float sigma = calculateSigma(i,j);
-                    Color sourceColor = image.GetPixel(i, j);
-                    float degree = (float)(-(Math.Pow(sourceColor.GetBrightness() - averageBrightness, 2)) / (2 * Math.Pow(sigma, 2)));
-                    Color resColor = Color.FromArgb((int)(1 / (float)Math.Sqrt(2 * Math.PI * sigma) * (float) Math.Pow(Math.E, degree)));
+                gaussian[i] = (double)((1 / (Math.Sqrt(2 * Math.PI) * sigma)) * Math.Exp(z - Math.Pow(i, 2) / (2 * Math.Pow(sigma, 2))));
+                sum += gaussian[i];
+            }
 
-                    resultImage.SetPixel(i, j, resColor);
+            for (int i = 0; i < 256; i++)
+            {
+                gaussian[i] /= sum;
+                gaussian[i] *= size;
+                gaussian[i] = (int)Math.Floor(gaussian[i]);
+            }
+
+            int count = 0;
+            for (int i = 0; i < 256; i++)
+            {
+                for (int j = 0; j < (int)gaussian[i]; j++)
+                {
+                    noise[j + count] = (byte)i;
+                }
+                count += (int)gaussian[i];
+            }
+
+            for (int i = 0; i < size - count; i++)
+            {
+                noise[count + i] = 0;
+            }
+
+            noise = noise.OrderBy(x => rnd.Next()).ToArray();
+
+            for (int i = 0; i < image.Height; i++)
+            {
+                for (int j = 0; j < image.Width; j++)
+                {
+                    Color color = image.GetPixel(j, i);
+
+                    resultImage.SetPixel(j, i, Color.FromArgb(Clamp(color.R + noise[image.Width * i + j], 0, 255),
+                        Clamp(color.G + noise[image.Width * i + j], 0, 255),
+                        Clamp(color.B + noise[image.Width * i + j], 0, 255)));
+
                 }
             }
 
@@ -526,34 +577,6 @@ namespace Image_processing
             return sigma;
         }
 
-        private void сольПерецToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            label1.Text = "Обработка изображения...";
-            Bitmap resultImage = new Bitmap(image.Width, image.Height);
-
-            const float p = 0.05f;
-            int noisePixels = 0;
-            int upBorder = 255, downBorder = 0;
-
-            Random random = new Random();
-            while (noisePixels < image.Height * image.Width * p)
-            {
-                int w = random.Next(image.Width);
-                int h = random.Next(image.Height);
-                Color color = image.GetPixel(w, h);
-                if (color.GetBrightness() != upBorder && color.GetBrightness() != downBorder)
-                {
-                    color = Color.Black;
-                }
-                resultImage.SetPixel(w, h, color);
-                noisePixels++;
-            }
-
-            pictureBox1.Image = resultImage;
-            pictureBox1.Refresh();
-            image = resultImage;
-            label1.Text = "Обработка завершена";
-        }
 
         private void фToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -640,7 +663,111 @@ namespace Image_processing
             return res;
         }
 
-        
+        private void uniformToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            label1.Text = "Обработка изображения...";
+            prevImage = image;
+            Bitmap resultImage = new Bitmap(image.Width, image.Height);
+
+            const double a = 110;
+            const double b = 150;
+
+            int size = image.Height * image.Width;
+            var uniform = new float[256];
+            float sum = 0f;
+
+            for (int i = 0; i < 256; i++)
+            {
+                float step = i;
+                if (step >= a && step <= b)
+                {
+                    uniform[i] = (1 / (float)(b - a));
+                }
+                else
+                {
+                    uniform[i] = 0;
+                }
+                sum += uniform[i];
+            }
+
+            for (int i = 0; i < 256; i++)
+            {
+                uniform[i] /= sum;
+                uniform[i] *= size;
+                uniform[i] = (int)Math.Floor(uniform[i]);
+            }
+
+            Random rand = new Random();
+            int count = 0;
+            var noise = new byte[size];
+            for (int i = 0; i < 256; i++)
+            {
+                for (int j = 0; j < (int)uniform[i]; j++)
+                {
+                    noise[j + count] = (byte)i;
+                }
+                count += (int)uniform[i];
+            }
+
+            for (int i = 0; i < size - count; i++)
+            {
+                noise[count + i] = 0;
+            }
+
+            noise = noise.OrderBy(x => rand.Next()).ToArray();
+
+            for (int i = 0; i < image.Height; i++)
+            {
+                for (int j = 0; j < image.Width; j++)
+                {
+                    Color color = image.GetPixel(j, i);
+
+                    resultImage.SetPixel(j, i, Color.FromArgb(Clamp(color.R + noise[image.Width * i + j], 0, 255),
+                        Clamp(color.G + noise[image.Width * i + j], 0, 255),
+                        Clamp(color.B + noise[image.Width * i + j], 0, 255)));
+
+                }
+            }
+
+            image = resultImage;
+            pictureBox1.Image = resultImage;
+            pictureBox1.Refresh();
+            label1.Text = "Обработка завершена";
+        }
+
+        private void медианныйToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            label1.Text = "Обработка изображения...";
+            prevImage = image;
+            Bitmap resultImage = new Bitmap(image.Width, image.Height);
+            int w = image.Width, h = image.Height;
+            int radiusX = 3 / 2;
+            int radiusY = 3 / 2;
+
+            int size = 3;
+            for (int i = radiusX; i < (w - radiusX); i++)
+            {
+                for (int j = radiusY; j < (h - radiusY); j++)
+                {
+                    List<Color> roundPixelsList = new List<Color>();
+                    for (int l = -radiusY; l <= radiusY; l++)
+                    {
+                        for (int k = -radiusX; k <= radiusX; k++)
+                        {
+                            roundPixelsList.Add(image.GetPixel(i + k, j + l));
+                        }
+                    }
+
+                    roundPixelsList.Sort((color1, color2) => color1.ToArgb() - color2.ToArgb());
+                    resultImage.SetPixel(i, j, roundPixelsList[4]);
+                }
+            }
+
+            image = resultImage;
+            pictureBox1.Image = resultImage;
+            pictureBox1.Refresh();
+            label1.Text = "Обработка завершена";
+        }
 
         private float calculateSigma(Bitmap image1, Bitmap image2)
         {
