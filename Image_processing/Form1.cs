@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Net.Mime.MediaTypeNames;
+using Syncfusion.XlsIO;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Image_processing
 {
@@ -39,7 +39,7 @@ namespace Image_processing
         private void сохранитьToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SaveFileDialog saveDialog = new SaveFileDialog();
-            saveDialog.Filter = "JPeg Image|*.jpg|Bitmap Image|*.bmp|Gif Image|*.gif";
+            saveDialog.Filter = "PNG Image|*.png|JPeg Image|*.jpg|Bmp Image|*.bmp";
             if (saveDialog.ShowDialog() == DialogResult.OK)
             {
                 System.IO.FileStream fs = (System.IO.FileStream)saveDialog.OpenFile();
@@ -444,20 +444,6 @@ namespace Image_processing
             label1.Text = "Обработка изображения...";
             Bitmap resultImage = new Bitmap(image.Width, image.Height);
 
-            //float averageBrightness = calculateAverageBrightness(image);
-
-            //for (int i = 0; i < image.Width; i++)
-            //{
-            //    for (int j = 0; j < image.Height; j++)
-            //    {
-            //        float sigma = calculateSigma(i,j);
-            //        Color sourceColor = image.GetPixel(i, j);
-            //        float degree = (float)(-(Math.Pow(sourceColor.GetBrightness() - averageBrightness, 2)) / (2 * Math.Pow(sigma, 2)));
-            //        Color resColor = Color.FromArgb((int)(1 / (float)Math.Sqrt(2 * Math.PI * sigma) * (float) Math.Pow(Math.E, degree)));
-
-            //        resultImage.SetPixel(i, j, resColor);
-            //    }
-            //}
             int size = image.Height * image.Width;
             byte[] noise = new byte[size];
             double[] gaussian = new double[256];
@@ -495,6 +481,7 @@ namespace Image_processing
 
             noise = noise.OrderBy(x => rnd.Next()).ToArray();
 
+
             for (int i = 0; i < image.Height; i++)
             {
                 for (int j = 0; j < image.Width; j++)
@@ -507,6 +494,8 @@ namespace Image_processing
 
                 }
             }
+            int[] hist = calculateHistogram(resultImage);
+            ArrToExcel(hist, "..\\..\\..\\..\\GaussianNoise.xls");
 
             pictureBox1.Image = resultImage;
             pictureBox1.Refresh();
@@ -514,163 +503,15 @@ namespace Image_processing
             label1.Text = "Обработка завершена";
         }
 
-        private float calculateAverageBrightness(Bitmap image)
-        {
-            float res = 0.0f;
-
-            for (int i = 0; i < image.Width; i++)
-            {
-                for (int j = 0; j < image.Height; j++)
-                {
-                    res += image.GetPixel(i, j).GetBrightness();
-                }
-            }
-
-            res /= image.Width * image.Height;
-
-            return res;
-        }
-
-        private float calculateSigma(int i, int j)
-        {
-            float sigma = 0.0f;
-            int w_size = 5;
-
-            int radiusX = w_size / 2;
-            int radiusY = w_size / 2;
-
-
-            double resColor1 = 0;
-            for (int l = -radiusY; l <= radiusY; l++)
-            {
-                for (int k = -radiusX; k <= radiusX; k++)
-                {
-                    int idX = Clamp(i + k, 0, image.Width - 1);
-                    int idY = Clamp(j + l, 0, image.Height - 1);
-
-                    resColor1 += image.GetPixel(idX, idY).R;
-                }
-            }
-            double res = resColor1 / (w_size * w_size);
-
-            for (int l = -radiusY; l <= radiusY; l++)
-            {
-                for (int k = -radiusX; k <= radiusX; k++)
-                {
-                    int idX = Clamp(i + k, 0, image.Width - 1);
-                    int idY = Clamp(j + l, 0, image.Height - 1);
-
-                    sigma += (float)((image.GetPixel(idX, idY).R - res) * (image.GetPixel(idX, idY).R - res));
-
-                }
-            }
-            sigma = (float)(sigma / (w_size * w_size));
-
-            //for (int i = 0; i < image.Width; i++)
-            //    for (int j = 0; j < image.Height; j++)
-            //    {
-            //        Color color = image.GetPixel(i, j);
-
-            //        sigma += (float)Math.Pow(color.GetBrightness() - averageBrightness, 2);
-            //    }
-            //sigma /= (image.Width * image.Height);
-            return sigma;
-        }
-
-
-        private void фToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            label1.Text = "Обработка изображения...";
-            prevImage = image;
-            Bitmap resultImage = new Bitmap(image.Width, image.Height);
-
-            int w_size = 3;
-
-            int radiusX = w_size / 2;
-            int radiusY = w_size / 2;
-
-            double res2 = 0;
-            double sum = 0;
-
-            for (int i = 0; i < image.Width; i++)
-            {
-                for (int j = 0; j < image.Height; j++)
-                {
-                    double resColor1 = 0;
-                    for (int l = -radiusY; l <= radiusY; l++)
-                    {
-                        for (int k = -radiusX; k <= radiusX; k++)
-                        {
-                            int idX = Clamp(i + k, 0, image.Width - 1);
-                            int idY = Clamp(j + l, 0, image.Height - 1);
-
-                            resColor1 += image.GetPixel(idX, idY).R;
-                        }
-                    }
-                    double res = resColor1 / (w_size * w_size);
-
-                    for (int l = -radiusY; l <= radiusY; l++)
-                    {
-                        for (int k = -radiusX; k <= radiusX; k++)
-                        {
-                            int idX = Clamp(i + k, 0, image.Width - 1);
-                            int idY = Clamp(j + l, 0, image.Height - 1);
-
-                            sum += (image.GetPixel(idX, idY).R - res) * (image.GetPixel(idX, idY).R - res);
-
-                        }
-                    }
-                    res2 = Math.Sqrt(sum / (w_size * w_size));
-
-                    int T = (int)(res + (-0.2) * res2);
-                    sum = 0;
-                    Color sourceColor = image.GetPixel(i, j);
-                    int result;
-                    if (sourceColor.R < T)
-                    {
-                        result = 0;
-                    }
-                    else
-                    {
-                        result = 255;
-                    }
-                    Color resultColor = Color.FromArgb(result, result, result);
-                    resultImage.SetPixel(i, j, resultColor);
-                }
-            }
-            image = resultImage;
-            pictureBox1.Image = resultImage;
-            pictureBox1.Refresh();
-            label1.Text = "Обработка завершена";
-        }
-
-        private void pSNRToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("Результат сравнения: " + calculatePsnr().ToString());
-        }
-
-        private float calculatePsnr()
-        {
-            float res;
-            if (image.Size != prevImage.Size)
-            {
-                res = -1.0f;
-                return res;
-            }
-
-            float sigma = calculateSigma(image, prevImage);
-            res = (float)(20 * Math.Log10(255.0f / Math.Sqrt(sigma)));
-            return res;
-        }
-
+       
         private void uniformToolStripMenuItem_Click(object sender, EventArgs e)
         {
             label1.Text = "Обработка изображения...";
             prevImage = image;
             Bitmap resultImage = new Bitmap(image.Width, image.Height);
 
-            const double a = 110;
-            const double b = 150;
+            const double a = 32;
+            const double b = 120;
 
             int size = image.Height * image.Width;
             var uniform = new float[256];
@@ -729,22 +570,61 @@ namespace Image_processing
                 }
             }
 
+            int[] hist = calculateHistogram(resultImage);
+            ArrToExcel(hist, "..\\..\\..\\..\\UniformNoise.xls");
             image = resultImage;
             pictureBox1.Image = resultImage;
             pictureBox1.Refresh();
             label1.Text = "Обработка завершена";
         }
 
+        private void фильтрГауссаToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            label1.Text = "Обработка изображения...";
+            prevImage = image;
+            Bitmap resultImage = new Bitmap(image.Width, image.Height);
+
+            int w_size = 3;
+
+            int radiusX = w_size / 2;
+            int radiusY = w_size / 2;
+            float sigma = 0.5f;
+            double gauss, sumGauss = 0;
+
+            for (int i = 0; i < image.Width; i++)
+            {
+                for (int j = 0; j < image.Height; j++)
+                {
+                    sumGauss = 0;
+                    for (int l = -radiusY; l <= radiusY; l++)
+                    {
+                        for (int k = -radiusX; k <= radiusX; k++)
+                        {
+                            int idX = Clamp(i + k, 0, image.Width - 1);
+                            int idY = Clamp(j + l, 0, image.Height - 1);
+                            Color neighborColor = image.GetPixel(idX, idY);
+                            gauss = 1 / (2 * Math.PI * Math.Pow(sigma, 2)) * Math.Exp(-(Math.Pow(l, 2) + Math.Pow(k, 2)) / (2 * Math.Pow(sigma, 2)));
+                            sumGauss += gauss * neighborColor.R;
+                        }
+                    }
+                    Color resultColor = Color.FromArgb(Clamp((int)sumGauss,0,255), Clamp((int)sumGauss, 0, 255), Clamp((int)sumGauss, 0, 255));
+                    resultImage.SetPixel(i, j, resultColor);
+                }
+            }
+            image = resultImage;
+            pictureBox1.Image = resultImage;
+            pictureBox1.Refresh();
+            label1.Text = "Обработка завершена";
+
+        }
         private void медианныйToolStripMenuItem_Click(object sender, EventArgs e)
         {
             label1.Text = "Обработка изображения...";
             prevImage = image;
             Bitmap resultImage = new Bitmap(image.Width, image.Height);
             int w = image.Width, h = image.Height;
-            int radiusX = 3 / 2;
-            int radiusY = 3 / 2;
+            int radiusX = 1, radiusY = 1;
 
-            int size = 3;
             for (int i = radiusX; i < (w - radiusX); i++)
             {
                 for (int j = radiusY; j < (h - radiusY); j++)
@@ -754,7 +634,9 @@ namespace Image_processing
                     {
                         for (int k = -radiusX; k <= radiusX; k++)
                         {
-                            roundPixelsList.Add(image.GetPixel(i + k, j + l));
+                            int idX = Clamp(i + k, 0, image.Width - 1);
+                            int idY = Clamp(j + l, 0, image.Height - 1);
+                            roundPixelsList.Add(image.GetPixel(idX, idY));
                         }
                     }
 
@@ -775,10 +657,152 @@ namespace Image_processing
             for (int i = 0; i < image1.Width; i++)
                 for (int j = 0; j < image1.Height; j++)
                 {
-                    sigma += (float)(Math.Pow(image1.GetPixel(i, j).GetBrightness() - image2.GetPixel(i, j).GetBrightness(), 2));
+                    sigma += (float)(Math.Pow(GetBrightness(image1.GetPixel(i, j)) - GetBrightness(image2.GetPixel(i, j)), 2));
                 }
             return sigma / (image1.Width * image1.Height);
         }
+
+        private void pSNRToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Результат сравнения: " + calculatePsnr().ToString());
+        }
+
+        private float calculatePsnr()
+        {
+            Bitmap compareImage = null;
+            OpenFileDialog dialog2 = new OpenFileDialog();
+            dialog2.Filter = "Image files | *.png; *.jpg; *.bmp; | All Files (*.*) | *.*";
+            if (dialog2.ShowDialog() == DialogResult.OK)
+            {
+                compareImage = new Bitmap(dialog2.FileName);
+            }
+            float res;
+            if (image.Size != compareImage.Size)
+            {
+                res = -1.0f;
+                return res;
+            }
+
+            float mse = calculateMse(compareImage);
+            res = (float)(20 * Math.Log10(255.0f / Math.Sqrt(mse)));
+            return res;
+        }
+
+        private float calculateMse(Bitmap compareImage)
+        {
+            float sumR = 0f;
+            float sumG = 0f;
+            float sumB = 0f;
+            for (int i = 0; i < image.Width; i++)
+            {
+                for (int j = 0; j < image.Height; j++)
+                {
+                    sumR += (float)Math.Pow((int)compareImage.GetPixel(i, j).R - (int)image.GetPixel(i, j).R, 2);
+                    sumG += (float)Math.Pow((int)compareImage.GetPixel(i, j).G - (int)image.GetPixel(i, j).G, 2);
+                    sumB += (float)Math.Pow((int)compareImage.GetPixel(i, j).B - (int)image.GetPixel(i, j).B, 2);
+                }
+            }
+            var res = (sumR + sumG + sumB) / (image.Width * image.Height) / 3;
+            return res;
+        }
+
+        private void sSIMToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Результат сравнения: " + calculateSsim().ToString());
+        }
+        private float calculateSsim()
+        {
+            Bitmap compareImage = null;
+            OpenFileDialog dialog2 = new OpenFileDialog();
+            dialog2.Filter = "Image files | *.png; *.jpg; *.bmp; | All Files (*.*) | *.*";
+            if (dialog2.ShowDialog() == DialogResult.OK)
+            {
+                compareImage = new Bitmap(dialog2.FileName);
+            }
+            float res;
+
+            
+
+            if (image.Size != compareImage.Size)
+            {
+                res = -1.0f;
+                return res;
+            }
+            float k1 = 0.01f, k2 = 0.03f;
+            float c1 = (float)Math.Pow(255f * k1, 2);
+            float c2 = (float)Math.Pow(255f * k2, 2);
+
+            float avgBrightX = calculateAverageBrightness(compareImage);
+            float avgBrightY = calculateAverageBrightness(image);
+            float disX = calculateDis(compareImage, avgBrightX);
+            float disY = calculateDis(image, avgBrightY);
+            float covXY = calculateCov(compareImage, avgBrightX, image, avgBrightY);
+            ;
+            res = (2 * avgBrightX * avgBrightY + c1) * (2 * covXY + c2) / (float)(Math.Pow(avgBrightX, 2) + Math.Pow(avgBrightY, 2) + c1)
+                / (float)(Math.Pow(disX, 2) + Math.Pow(disY, 2) + c2); ;
+            return res;
+        }
+
+        private float calculateDis(Bitmap image, float AvBr)
+        {
+            float sum = 0f;
+            for (int i = 0; i < image.Width; i++)
+            {
+                for (int j = 0; j < image.Height; j++)
+                {
+                    sum += (float)Math.Pow(GetBrightness(image.GetPixel(i, j)) - AvBr, 2);
+                }
+            }
+            return (float)Math.Sqrt(sum / ((float)(image.Width * image.Height) - 1f));
+        }
+
+        private float calculateAverageBrightness(Bitmap image)
+        {
+            float sum = 0.0f;
+            for (int i = 0; i < image.Width; i++)
+            {
+                for (int j = 0; j < image.Height; j++)
+                {
+                    sum += GetBrightness(image.GetPixel(i, j));
+                }
+            }
+            return sum / (float)(image.Width * image.Height);
+        }
+
+        private static float calculateCov(Bitmap image1, float m1, Bitmap image2, float m2)
+        {
+            float sum = 0f;
+            for (int i = 0; i < image1.Width; i++)
+            {
+                for (int j = 0; j < image1.Height; j++)
+                {
+                    sum += (GetBrightness(image1.GetPixel(i, j)) - m1) *
+                        (GetBrightness(image2.GetPixel(i, j)) - m2);
+                }
+            }
+            return sum / ((float)(image1.Width * image1.Height) - 1f);
+        }
+
+
+        private static byte GetBrightness(Color color)
+        {
+            return (byte)(.299 * color.R + .587 * color.G + .114 * color.B);
+        }
+        public void ArrToExcel(int[] arr, string path)
+        {
+            ExcelEngine excelEngine = new ExcelEngine();
+            IApplication application = excelEngine.Excel;
+            application.DefaultVersion = ExcelVersion.Excel2016;
+
+            IWorkbook workbook = application.Workbooks.Create(1);
+            IWorksheet sheet = workbook.Worksheets[0];
+            sheet.ImportArray(arr, 1, 1, false);
+
+            Stream excelStream = File.Create(path);
+            workbook.SaveAs(excelStream);
+            excelStream.Dispose();
+        }
+       
     }
 
 }

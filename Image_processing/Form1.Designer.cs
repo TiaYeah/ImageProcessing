@@ -48,11 +48,11 @@ namespace Image_processing
             this.uniformToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.удалениеШумаToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.фToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.медианныйToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.метрикиСравненияToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pSNRToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sSIMToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.label1 = new System.Windows.Forms.Label();
-            this.медианныйToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -186,14 +186,14 @@ namespace Image_processing
             // гауссовШумToolStripMenuItem
             // 
             this.гауссовШумToolStripMenuItem.Name = "гауссовШумToolStripMenuItem";
-            this.гауссовШумToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.гауссовШумToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
             this.гауссовШумToolStripMenuItem.Text = "Гауссов шум";
             this.гауссовШумToolStripMenuItem.Click += new System.EventHandler(this.гауссовШумToolStripMenuItem_Click);
             // 
             // uniformToolStripMenuItem
             // 
             this.uniformToolStripMenuItem.Name = "uniformToolStripMenuItem";
-            this.uniformToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.uniformToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
             this.uniformToolStripMenuItem.Text = "uniform";
             this.uniformToolStripMenuItem.Click += new System.EventHandler(this.uniformToolStripMenuItem_Click);
             // 
@@ -211,7 +211,14 @@ namespace Image_processing
             this.фToolStripMenuItem.Name = "фToolStripMenuItem";
             this.фToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.фToolStripMenuItem.Text = "Фильтр Гаусса";
-            this.фToolStripMenuItem.Click += new System.EventHandler(this.фToolStripMenuItem_Click);
+            this.фToolStripMenuItem.Click += new System.EventHandler(this.фильтрГауссаToolStripMenuItem_Click);
+            // 
+            // медианныйToolStripMenuItem
+            // 
+            this.медианныйToolStripMenuItem.Name = "медианныйToolStripMenuItem";
+            this.медианныйToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.медианныйToolStripMenuItem.Text = "Медианный";
+            this.медианныйToolStripMenuItem.Click += new System.EventHandler(this.медианныйToolStripMenuItem_Click);
             // 
             // метрикиСравненияToolStripMenuItem
             // 
@@ -225,15 +232,16 @@ namespace Image_processing
             // pSNRToolStripMenuItem
             // 
             this.pSNRToolStripMenuItem.Name = "pSNRToolStripMenuItem";
-            this.pSNRToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.pSNRToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.pSNRToolStripMenuItem.Text = "PSNR";
             this.pSNRToolStripMenuItem.Click += new System.EventHandler(this.pSNRToolStripMenuItem_Click);
             // 
             // sSIMToolStripMenuItem
             // 
             this.sSIMToolStripMenuItem.Name = "sSIMToolStripMenuItem";
-            this.sSIMToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
+            this.sSIMToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.sSIMToolStripMenuItem.Text = "SSIM";
+            this.sSIMToolStripMenuItem.Click += new System.EventHandler(this.sSIMToolStripMenuItem_Click);
             // 
             // label1
             // 
@@ -244,13 +252,6 @@ namespace Image_processing
             this.label1.Size = new System.Drawing.Size(148, 37);
             this.label1.TabIndex = 2;
             this.label1.Text = "Ожидание";
-            // 
-            // медианныйToolStripMenuItem
-            // 
-            this.медианныйToolStripMenuItem.Name = "медианныйToolStripMenuItem";
-            this.медианныйToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.медианныйToolStripMenuItem.Text = "Медианный";
-            this.медианныйToolStripMenuItem.Click += new System.EventHandler(this.медианныйToolStripMenuItem_Click);
             // 
             // Form1
             // 
